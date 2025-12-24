@@ -11,15 +11,15 @@ const cameras = [
   "Depósito"
 ];
 
-const enemy = {
+const springbonnie = {
+  name: "Springbonnie",
   position: 3,
-  aggressiveness: 0.2
+  aggressiveness: 0.25
 };
 
-// Atualiza HUD
 function updateHUD() {
   document.getElementById("energy").innerText =
-    `Energia: ${Math.max(energy, 0)}%`;
+    `Energia: ${Math.floor(energy)}%`;
 
   const hour = 12 + Math.floor(time / 60);
   document.getElementById("time").innerText =
@@ -27,9 +27,19 @@ function updateHUD() {
 
   document.getElementById("cameraName").innerText =
     cameras[cameraIndex];
+
+  const enemyText = springbonnie.position === cameraIndex
+    ? `Springbonnie está AQUI`
+    : `Springbonnie não está nesta sala`;
+
+  document.getElementById("enemyStatus").innerText = enemyText;
+
+  document.getElementById("officeStatus").innerText =
+    doorClosed
+      ? "Porta FECHADA"
+      : "Porta ABERTA";
 }
 
-// Controles
 function nextCamera() {
   cameraIndex = (cameraIndex + 1) % cameras.length;
   energy -= 1;
@@ -49,33 +59,32 @@ function toggleDoor() {
 
 function toggleLight() {
   lightOn = !lightOn;
-  energy -= 2;
+  energy -= 1;
+  document.getElementById("office").classList.toggle("light-on", lightOn);
 }
 
-// IA do inimigo
-function enemyAI() {
-  if (Math.random() < enemy.aggressiveness) {
-    enemy.position--;
+function springbonnieAI() {
+  if (Math.random() < springbonnie.aggressiveness) {
+    springbonnie.position--;
   }
 
-  if (enemy.position <= 0) {
+  if (springbonnie.position < 0) {
     if (!doorClosed) {
-      alert("JUMPSCARE! Você perdeu.");
+      alert("Springbonnie entrou no escritório!");
       location.reload();
     } else {
-      enemy.position = 3;
+      springbonnie.position = 3;
     }
   }
 }
 
-// Loop principal
 setInterval(() => {
-  energy -= doorClosed ? 0.3 : 0.1;
+  energy -= doorClosed ? 0.4 : 0.15;
   time++;
-  enemyAI();
+  springbonnieAI();
 
   if (energy <= 0) {
-    alert("Sem energia! Game Over.");
+    alert("Sem energia!");
     location.reload();
   }
 
